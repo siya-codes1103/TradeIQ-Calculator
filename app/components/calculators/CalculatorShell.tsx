@@ -8,6 +8,8 @@ import {
   RetirementGapChart, InflationChart, RiskMeter,
   PnLChart, ROIChart, LiquidationChart,
   PortfolioDonut, FDGrowthChart, MarginBar,
+  CAGRChart, SavingsGoalChart, NetWorthChart,
+  DCFChart, PiotroskiChart,
 } from './CalculatorChart'
 
 // ── CHART DATA HELPERS ──────────────────────────────
@@ -67,6 +69,30 @@ function generateInflationData(inputs: Record<string, number>) {
   }
   return data
 }
+const whoShouldUse: Record<string, { who: string; when: string; why: string }> = {
+  'position-size':        { who: 'Active traders, intraday traders, F&O traders', when: 'Before entering any trade', why: 'Prevents overleveraging and account blowup' },
+  'risk-reward':          { who: 'Traders evaluating trade setups', when: 'Before placing any trade order', why: 'Ensures only high-quality setups are traded' },
+  'pnl':                  { who: 'Equity and F&O traders', when: 'After deciding entry/exit prices', why: 'Reveals real profit after all charges' },
+  'brokerage':            { who: 'Traders comparing broker costs', when: 'Before choosing a broker or trade size', why: 'Shows true cost impact on profitability' },
+  'margin':               { who: 'F&O traders and futures traders', when: 'Before placing F&O orders', why: 'Prevents margin shortfall and forced exits' },
+  'liquidation':          { who: 'Crypto leverage traders', when: 'Before opening any leveraged position', why: 'Reveals exact price at which position gets liquidated' },
+  'crypto-futures':       { who: 'Crypto derivatives traders', when: 'Planning crypto futures trades', why: 'Full P&L and liquidation analysis in one place' },
+  'sip':                  { who: 'Salaried professionals, long-term investors', when: 'Starting or reviewing a monthly SIP', why: 'Shows exact wealth growth over time' },
+  'compound-interest':    { who: 'Investors with lumpsum capital', when: 'Evaluating a lumpsum investment', why: 'Visualises exponential compounding effect' },
+  'retirement':           { who: 'Working professionals aged 25-55', when: 'Annual financial planning', why: 'Reveals if current savings will meet retirement needs' },
+  'inflation':            { who: 'All investors and savers', when: 'Evaluating any investment return', why: 'Shows real purchasing power after inflation' },
+  'fd-rd':                { who: 'Conservative investors', when: 'Before opening an FD or RD', why: 'Calculates real post-tax return including inflation' },
+  'roi':                  { who: 'All investors', when: 'Reviewing any investment performance', why: 'Standardizes returns for fair comparison' },
+  'portfolio-allocation': { who: 'Investors with multiple assets', when: 'Quarterly portfolio review', why: 'Identifies overweight/underweight positions' },
+  'cagr':                 { who: 'Investors comparing returns', when: 'Reviewing investment performance', why: 'Annualizes returns for apple-to-apple comparison' },
+  'savings-goal':         { who: 'Anyone with a financial goal', when: 'Setting a savings target', why: 'Calculates exact monthly amount needed' },
+  'net-worth':            { who: 'Anyone tracking financial health', when: 'Annual financial health check', why: 'Shows true financial position after all debts' },
+  'emi':                  { who: 'Home buyers, car buyers, loan takers', when: 'Before taking any loan', why: 'Shows monthly commitment and total interest burden' },
+  'dcf':                  { who: 'Fundamental investors, value investors', when: 'Analysing a stock for investment', why: 'Calculates what a stock is actually worth' },
+  'graham-number':        { who: 'Value investors following Graham principles', when: 'Screening stocks for value', why: 'Quick check if stock meets Graham\'s safety criteria' },
+  'piotroski':            { who: 'Fundamental analysts, stock screeners', when: 'Due diligence before stock investment', why: 'Scores financial health across 9 objective criteria' },
+  'ytm':                  { who: 'Bond investors, fixed income investors', when: 'Evaluating bond purchases', why: 'Shows true yield accounting for price vs face value' },
+}
 
 // ── MAIN COMPONENT ──────────────────────────────────
 export default function CalculatorShell({ slug }: { slug: string }) {
@@ -114,6 +140,10 @@ const showPortfolio       = slug === 'portfolio-allocation'
 const showFDChart         = slug === 'fd-rd'
 const showMarginBar       = slug === 'margin'
 const showCryptoChart     = slug === 'crypto-futures'
+const showSavingsGoalChart = slug === 'savings-goal'
+const showNetWorthChart    = slug === 'net-worth'
+const showDCFChart        = slug === 'dcf'
+const showPiotroskiChart  = slug === 'piotroski'
 
   return (
     <main style={{ minHeight: '100vh', backgroundColor: '#0F1209', paddingBottom: '96px' }}>
@@ -125,12 +155,12 @@ const showCryptoChart     = slug === 'crypto-futures'
         padding: '0 32px', height: '60px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <Link href="/" style={{ fontFamily: 'Raleway, sans-serif', fontWeight: 800, fontSize: '20px', color: '#F7FAF5', textDecoration: 'none' }}>
-          Trade<span style={{ color: '#9BEC00' }}>Ved</span>
-        </Link>
-        <Link href="/calculators" style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '13px', color: '#A2AB9A', textDecoration: 'none' }}>
-          ← All Calculators
-        </Link>
+        <Link href="/#calculators" style={{
+  fontFamily: 'Open Sans, sans-serif', fontSize: '13px',
+  color: '#A2AB9A', textDecoration: 'none',
+}}>
+  ← All Calculators
+</Link>
       </nav>
 
       {/* HEADER */}
@@ -423,7 +453,97 @@ const showCryptoChart     = slug === 'crypto-futures'
     />
   </div>
 )}
+{/* SAVINGS GOAL CHART */}
+{result && showSavingsGoalChart && (
+  <div style={{ marginTop: '24px', backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '12px', padding: '24px' }}>
+    <h2 style={{ fontFamily: 'Raleway, sans-serif', fontWeight: 700, fontSize: '16px', color: '#F7FAF5', marginBottom: '4px' }}>
+      Savings Progress
+    </h2>
+    <p style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '12px', color: '#73786C', marginBottom: '20px' }}>
+      Green line = your projected savings · Dashed line = your goal
+    </p>
+    <SavingsGoalChart
+      goalAmount={inputs.goalAmount ?? 1000000}
+      currentSavings={inputs.currentSavings ?? 100000}
+      monthlySavings={result.primary.value}
+      years={inputs.years ?? 5}
+      annualReturn={inputs.annualReturn ?? 12}
+    />
+  </div>
+)}
 
+{/* NET WORTH CHART */}
+{result && showNetWorthChart && (
+  <div style={{ marginTop: '24px', backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '12px', padding: '24px' }}>
+    <h2 style={{ fontFamily: 'Raleway, sans-serif', fontWeight: 700, fontSize: '16px', color: '#F7FAF5', marginBottom: '20px' }}>
+      Assets vs Liabilities
+    </h2>
+    <NetWorthChart
+      assets={(inputs.cash ?? 0) + (inputs.equity ?? 0) + (inputs.realEstate ?? 0) + (inputs.gold ?? 0) + (inputs.otherAssets ?? 0)}
+      liabilities={(inputs.homeLoan ?? 0) + (inputs.otherLoans ?? 0)}
+    />
+  </div>
+)}
+{/* DCF CHART */}
+{result && showDCFChart && (
+  <div style={{ marginTop: '24px', backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '12px', padding: '24px' }}>
+    <h2 style={{ fontFamily: 'Raleway, sans-serif', fontWeight: 700, fontSize: '16px', color: '#F7FAF5', marginBottom: '20px' }}>
+      Intrinsic Value vs Market Price
+    </h2>
+    <DCFChart
+      intrinsicValue={result.primary.value}
+      currentPrice={inputs.currentPrice ?? 500}
+    />
+  </div>
+)}
+
+{/* PIOTROSKI CHART */}
+{result && showPiotroskiChart && (
+  <div style={{ marginTop: '24px', backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '12px', padding: '24px' }}>
+    <h2 style={{ fontFamily: 'Raleway, sans-serif', fontWeight: 700, fontSize: '16px', color: '#F7FAF5', marginBottom: '20px' }}>
+      F-Score Breakdown
+    </h2>
+    <PiotroskiChart score={result.primary.value} />
+  </div>
+)}
+{/* WHO SHOULD USE THIS */}
+{whoShouldUse[slug] && (
+  <div style={{
+    marginTop: '40px',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: '12px',
+  }}>
+    {[
+      { label: '👤 Who should use this', value: whoShouldUse[slug].who, color: '#9BEC00' },
+      { label: '⏰ When to use it', value: whoShouldUse[slug].when, color: '#2F8EFF' },
+      { label: '💡 Why it matters', value: whoShouldUse[slug].why, color: '#FDE900' },
+    ].map((item, i) => (
+      <div key={i} style={{
+        backgroundColor: '#181916',
+        border: '1px solid #242620',
+        borderTop: `3px solid ${item.color}`,
+        borderRadius: '10px',
+        padding: '16px 18px',
+      }}>
+        <p style={{
+          fontFamily: 'Open Sans, sans-serif', fontSize: '11px',
+          color: item.color, fontWeight: 700,
+          letterSpacing: '0.5px', marginBottom: '8px',
+          textTransform: 'uppercase',
+        }}>
+          {item.label}
+        </p>
+        <p style={{
+          fontFamily: 'Open Sans, sans-serif', fontSize: '13px',
+          color: '#D3DEC8', lineHeight: 1.6,
+        }}>
+          {item.value}
+        </p>
+      </div>
+    ))}
+  </div>
+)}
         {/* ── FAQ ── */}
         {config.seo.faqs.length > 0 && (
           <div style={{ marginTop: '40px', backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '12px', padding: '28px 32px' }}>

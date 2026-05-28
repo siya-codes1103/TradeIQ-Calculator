@@ -473,3 +473,214 @@ export function MarginBar({
   )
 }
 
+// ── CAGR GROWTH CHART ───────────────────────────────
+export function CAGRChart({
+  initialValue,
+  finalValue,
+  years,
+}: {
+  initialValue: number
+  finalValue: number
+  years: number
+}) {
+  const cagr = Math.pow(finalValue / initialValue, 1 / years) - 1
+  const data = []
+  for (let y = 0; y <= years; y++) {
+    data.push({
+      year: y,
+      value: Math.round(initialValue * Math.pow(1 + cagr, y)),
+    })
+  }
+  return (
+    <ResponsiveContainer width="100%" height={200}>
+      <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+        <defs>
+          <linearGradient id="colorCAGR" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#9BEC00" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="#9BEC00" stopOpacity={0.02} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" stroke="#242620" />
+        <XAxis
+          dataKey="year"
+          tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }}
+          tickLine={false}
+          axisLine={{ stroke: '#242620' }}
+          label={{ value: 'Years', position: 'insideBottom', offset: -2, fill: '#73786C', fontSize: 11 }}
+        />
+        <YAxis
+          tickFormatter={v =>
+            v >= 10000000 ? `₹${(v / 10000000).toFixed(1)}Cr` :
+            v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` :
+            `₹${(v / 1000).toFixed(0)}K`
+          }
+          tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }}
+          tickLine={false}
+          axisLine={false}
+          width={60}
+        />
+        <Tooltip
+          contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }}
+          formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Value']}
+          labelFormatter={label => `Year ${label}`}
+        />
+        <Area
+          type="monotone"
+          dataKey="value"
+          stroke="#9BEC00"
+          strokeWidth={2}
+          fill="url(#colorCAGR)"
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  )
+}
+// ── SAVINGS GOAL PROGRESS CHART ─────────────────────
+export function SavingsGoalChart({
+  goalAmount,
+  currentSavings,
+  monthlySavings,
+  years,
+  annualReturn,
+}: {
+  goalAmount: number
+  currentSavings: number
+  monthlySavings: number
+  years: number
+  annualReturn: number
+}) {
+  const data = []
+  const monthlyRate = annualReturn / 12 / 100
+  for (let y = 0; y <= years; y++) {
+    const fvCurrent = currentSavings * Math.pow(1 + annualReturn / 100, y)
+    const months = y * 12
+    const fvMonthly = monthlySavings > 0
+      ? monthlySavings * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate)
+      : 0
+    data.push({
+      year: y,
+      savings: Math.round(fvCurrent + fvMonthly),
+      goal: Math.round(goalAmount),
+    })
+  }
+  return (
+    <ResponsiveContainer width="100%" height={220}>
+      <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+        <defs>
+          <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#9BEC00" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="#9BEC00" stopOpacity={0.02} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" stroke="#242620" />
+        <XAxis dataKey="year" tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={{ stroke: '#242620' }} />
+        <YAxis
+          tickFormatter={v => v >= 10000000 ? `₹${(v / 10000000).toFixed(1)}Cr` : v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` : `₹${(v / 1000).toFixed(0)}K`}
+          tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }}
+          tickLine={false} axisLine={false} width={65}
+        />
+        <Tooltip
+          contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }}
+          formatter={(value: number, name: string) => [`₹${value.toLocaleString('en-IN')}`, name === 'savings' ? 'Your Savings' : 'Goal']}
+          labelFormatter={label => `Year ${label}`}
+        />
+        <Area type="monotone" dataKey="goal" stroke="#73786C" strokeWidth={1} strokeDasharray="4 4" fill="none" />
+        <Area type="monotone" dataKey="savings" stroke="#9BEC00" strokeWidth={2} fill="url(#colorSavings)" />
+      </AreaChart>
+    </ResponsiveContainer>
+  )
+}
+
+// ── NET WORTH BREAKDOWN ──────────────────────────────
+export function NetWorthChart({
+  assets,
+  liabilities,
+}: {
+  assets: number
+  liabilities: number
+}) {
+  const netWorth = assets - liabilities
+  const data = [
+    { name: 'Total Assets', value: assets, fill: '#9BEC00' },
+    { name: 'Liabilities', value: liabilities, fill: '#CC0066' },
+    { name: 'Net Worth', value: Math.max(0, netWorth), fill: netWorth >= 0 ? '#2F8EFF' : '#CC0066' },
+  ]
+  return (
+    <ResponsiveContainer width="100%" height={180}>
+      <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#242620" vertical={false} />
+        <XAxis dataKey="name" tick={{ fontFamily: 'Open Sans, sans-serif', fontSize: 11, fill: '#73786C' }} tickLine={false} axisLine={false} />
+        <YAxis
+          tickFormatter={v => v >= 10000000 ? `₹${(v / 10000000).toFixed(1)}Cr` : v >= 100000 ? `₹${(v / 100000).toFixed(0)}L` : `₹${(v / 1000).toFixed(0)}K`}
+          tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }}
+          tickLine={false} axisLine={false} width={65}
+        />
+        <Tooltip
+          contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }}
+          formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, '']}
+        />
+        <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+          {data.map((entry, i) => <rect key={i} fill={entry.fill} />)}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  )
+}
+// ── DCF VALUATION CHART ──────────────────────────────
+export function DCFChart({
+  intrinsicValue,
+  currentPrice,
+}: {
+  intrinsicValue: number
+  currentPrice: number
+}) {
+  const data = [
+    { name: 'Intrinsic Value', value: intrinsicValue, fill: '#9BEC00' },
+    { name: 'Market Price', value: currentPrice, fill: currentPrice <= intrinsicValue ? '#2F8EFF' : '#CC0066' },
+  ]
+  return (
+    <ResponsiveContainer width="100%" height={160}>
+      <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#242620" vertical={false} />
+        <XAxis dataKey="name" tick={{ fontFamily: 'Open Sans, sans-serif', fontSize: 11, fill: '#73786C' }} tickLine={false} axisLine={false} />
+        <YAxis tickFormatter={v => `₹${v.toLocaleString('en-IN')}`} tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={70} />
+        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, '']} />
+        <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+          {data.map((entry, i) => <rect key={i} fill={entry.fill} />)}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  )
+}
+
+// ── PIOTROSKI SCORE CHART ───────────────────────────
+export function PiotroskiChart({ score }: { score: number }) {
+  const color = score >= 7 ? '#9BEC00' : score >= 4 ? '#FDE900' : '#CC0066'
+  const label = score >= 7 ? 'Strong' : score >= 4 ? 'Average' : 'Weak'
+  return (
+    <div style={{ padding: '8px 0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+        <span style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '13px', color: '#A2AB9A' }}>
+          Financial Health Score
+        </span>
+        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '22px', fontWeight: 700, color }}>
+          {score} <span style={{ fontSize: '14px', color: '#73786C' }}>/ 9</span>
+        </span>
+      </div>
+      <div style={{ display: 'flex', gap: '6px' }}>
+        {Array.from({ length: 9 }, (_, i) => (
+          <div key={i} style={{
+            flex: 1, height: '32px', borderRadius: '4px',
+            backgroundColor: i < score ? color : '#242620',
+            transition: 'background 0.2s',
+          }} />
+        ))}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
+        <span style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '10px', color: '#73786C' }}>0 — Weak</span>
+        <span style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '12px', color, fontWeight: 700 }}>{label}</span>
+        <span style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '10px', color: '#73786C' }}>9 — Strong</span>
+      </div>
+    </div>
+  )
+}

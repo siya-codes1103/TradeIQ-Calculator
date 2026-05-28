@@ -14,6 +14,13 @@ import { retirementConfig } from './configs/retirement.config'
 import { inflationConfig } from './configs/inflation.config'
 import { fdRdConfig } from './configs/fd-rd.config'
 import { portfolioAllocationConfig } from './configs/portfolio-allocation.config'
+import { cagrConfig } from './configs/cagr.config'
+import { savingsGoalConfig } from './configs/savings-goal.config'
+import { netWorthConfig } from './configs/net-worth.config'
+import { dcfConfig } from './configs/dcf.config'
+import { grahamNumberConfig } from './configs/graham-number.config'
+import { piotroskiConfig } from './configs/piotroski.config'
+import { ytmConfig } from './configs/ytm.config'
 
 export const registry: Record<string, CalculatorConfig> = {
   'position-size':        positionSizeConfig,
@@ -31,6 +38,13 @@ export const registry: Record<string, CalculatorConfig> = {
   'inflation':            inflationConfig,
   'fd-rd':                fdRdConfig,
   'portfolio-allocation': portfolioAllocationConfig,
+  'cagr': cagrConfig,
+  'savings-goal': savingsGoalConfig,
+'net-worth':    netWorthConfig,
+'dcf':            dcfConfig,
+'graham-number':  grahamNumberConfig,
+'piotroski':      piotroskiConfig,
+'ytm':            ytmConfig,
 }
 
 export function getCalculator(slug: string): CalculatorConfig | null {

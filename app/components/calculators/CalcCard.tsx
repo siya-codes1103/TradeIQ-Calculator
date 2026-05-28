@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { CalculatorConfig } from '@/lib/calculators/engine'
+import { SafeCalculator } from '@/types/calculator.types'
 
 const badgeStyle: Record<string, { bg: string; color: string }> = {
   'MOST USED':    { bg: 'rgba(155,236,0,0.15)',  color: '#9BEC00' },

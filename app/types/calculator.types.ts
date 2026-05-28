@@ -1,3 +1,4 @@
+
 export interface SafeCalculator {
   id: string
   slug: string
