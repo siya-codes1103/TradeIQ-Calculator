@@ -28,5 +28,5 @@ export default function CalculatorPage({
   const config = getCalculator(params.slug)
   if (!config) notFound()
 
-  return <CalculatorShell config={config} />
+  return <CalculatorShell slug={params.slug}/>
 }

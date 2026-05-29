@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { CalculatorConfig } from '@/lib/calculators/engine'
 import { SafeCalculator } from '@/types/calculator.types'
 
 const badgeStyle: Record<string, { bg: string; color: string }> = {
@@ -15,7 +14,7 @@ export default function CalcCard({
   calc,
   accent,
 }: {
-  calc: CalculatorConfig
+  calc: SafeCalculator
   accent: string
 }) {
   const isLive = !calc.comingSoon
@@ -42,7 +41,6 @@ export default function CalcCard({
         (e.currentTarget as HTMLDivElement).style.borderColor = '#242620'
       }}
     >
-      {/* Badge */}
       {calc.badge && badgeStyle[calc.badge] && (
         <span style={{
           position: 'absolute', top: '16px', right: '16px',
@@ -57,20 +55,17 @@ export default function CalcCard({
         </span>
       )}
 
-      {/* Icon */}
       <div style={{
         width: '36px', height: '36px',
         backgroundColor: `${accent}18`,
         border: `1px solid ${accent}30`,
         borderRadius: '8px',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        marginBottom: '14px',
-        flexShrink: 0,
+        marginBottom: '14px', flexShrink: 0,
       }}>
         <span style={{ color: accent, fontSize: '15px', lineHeight: '1' }}>◎</span>
       </div>
 
-      {/* Title */}
       <h3 style={{
         fontFamily: 'Raleway, sans-serif', fontWeight: 700,
         fontSize: '14px', color: '#F7FAF5',
@@ -80,7 +75,6 @@ export default function CalcCard({
         {calc.title}
       </h3>
 
-      {/* Description */}
       <p style={{
         fontFamily: 'Open Sans, sans-serif', fontSize: '12px',
         color: '#73786C', lineHeight: '1.6',
@@ -89,7 +83,6 @@ export default function CalcCard({
         {calc.description}
       </p>
 
-      {/* CTA */}
       {isLive ? (
         <Link href={`/calculators/${calc.slug}`} style={{
           fontFamily: 'Raleway, sans-serif', fontWeight: 700,

@@ -3,6 +3,7 @@
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, BarChart, Bar, Legend,
+  PieChart, Pie, Cell,
 } from 'recharts'
 
 // ── GROWTH CHART (SIP + Compound) ──────────────────
@@ -25,27 +26,15 @@ export function GrowthChart({
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="#242620" />
-        <XAxis
-          dataKey="year"
-          tick={{ fontFamily: 'JetBrains Mono', fontSize: 11, fill: '#73786C' }}
-          tickLine={false}
-          axisLine={{ stroke: '#242620' }}
-        />
+        <XAxis dataKey="year" tick={{ fontFamily: 'JetBrains Mono', fontSize: 11, fill: '#73786C' }} tickLine={false} axisLine={{ stroke: '#242620' }} />
         <YAxis
-          tickFormatter={v =>
-            v >= 10000000 ? `₹${(v / 10000000).toFixed(1)}Cr` :
-            v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` :
-            `₹${(v / 1000).toFixed(0)}K`
-          }
-          tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }}
-          tickLine={false}
-          axisLine={false}
-          width={60}
+          tickFormatter={v => v >= 10000000 ? `₹${(v/10000000).toFixed(1)}Cr` : v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : `₹${(v/1000).toFixed(0)}K`}
+          tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={60}
         />
         <Tooltip
           contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontFamily: 'Open Sans, sans-serif', fontSize: '12px' }}
           labelStyle={{ color: '#A2AB9A', marginBottom: '4px' }}
-          formatter={(value: number, name: string) => [`₹${value.toLocaleString('en-IN')}`, name === 'returns' ? 'Returns' : 'Invested']}
+          formatter={(value: unknown, name?: string | number) => [`₹${Number(value).toLocaleString('en-IN')}`, name === 'returns' ? 'Returns' : 'Invested']}
           labelFormatter={label => `Year ${label}`}
         />
         <Area type="monotone" dataKey="invested" stackId="1" stroke="none" fill="url(#colorInvested)" />
@@ -57,37 +46,16 @@ export function GrowthChart({
 
 // ── R:R BAR CHART ──────────────────────────────────
 export function RRBarChart({ risk, reward }: { risk: number; reward: number }) {
-  const data = [
-    { name: 'Risk', value: risk },
-    { name: 'Reward', value: reward },
-  ]
+  const data = [{ name: 'Risk', value: risk }, { name: 'Reward', value: reward }]
   const colors = ['#CC0066', '#9BEC00']
   return (
     <ResponsiveContainer width="100%" height={120}>
       <BarChart data={data} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
-        <XAxis
-          type="number"
-          tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }}
-          tickLine={false}
-          axisLine={{ stroke: '#242620' }}
-          tickFormatter={v => `₹${v.toLocaleString('en-IN')}`}
-        />
-        <YAxis
-          type="category"
-          dataKey="name"
-          tick={{ fontFamily: 'Open Sans, sans-serif', fontSize: 12, fill: '#A2AB9A' }}
-          tickLine={false}
-          axisLine={false}
-          width={50}
-        />
-        <Tooltip
-          contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontFamily: 'Open Sans, sans-serif', fontSize: '12px' }}
-          formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, '']}
-        />
+        <XAxis type="number" tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={{ stroke: '#242620' }} tickFormatter={v => `₹${v.toLocaleString('en-IN')}`} />
+        <YAxis type="category" dataKey="name" tick={{ fontFamily: 'Open Sans, sans-serif', fontSize: 12, fill: '#A2AB9A' }} tickLine={false} axisLine={false} width={50} />
+        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontFamily: 'Open Sans, sans-serif', fontSize: '12px' }} formatter={(value: unknown) => [`₹${Number(value).toLocaleString('en-IN')}`, '']} />
         <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-          {data.map((_, i) => (
-            <rect key={i} fill={colors[i]} />
-          ))}
+          {data.map((_, i) => <rect key={i} fill={colors[i]} />)}
         </Bar>
       </BarChart>
     </ResponsiveContainer>
@@ -95,33 +63,14 @@ export function RRBarChart({ risk, reward }: { risk: number; reward: number }) {
 }
 
 // ── EMI AMORTIZATION CHART ──────────────────────────
-export function AmortizationChart({
-  data,
-}: {
-  data: { year: number; principal: number; interest: number }[]
-}) {
+export function AmortizationChart({ data }: { data: { year: number; principal: number; interest: number }[] }) {
   return (
     <ResponsiveContainer width="100%" height={200}>
       <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#242620" />
-        <XAxis
-          dataKey="year"
-          tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }}
-          tickLine={false}
-          axisLine={{ stroke: '#242620' }}
-        />
-        <YAxis
-          tickFormatter={v => `₹${(v / 1000).toFixed(0)}K`}
-          tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }}
-          tickLine={false}
-          axisLine={false}
-          width={55}
-        />
-        <Tooltip
-          contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }}
-          formatter={(value: number, name: string) => [`₹${value.toLocaleString('en-IN')}`, name === 'principal' ? 'Principal' : 'Interest']}
-          labelFormatter={label => `Year ${label}`}
-        />
+        <XAxis dataKey="year" tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={{ stroke: '#242620' }} />
+        <YAxis tickFormatter={v => `₹${(v/1000).toFixed(0)}K`} tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={55} />
+        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: unknown, name?: string | number) => [`₹${Number(value).toLocaleString('en-IN')}`, name === 'principal' ? 'Principal' : 'Interest']} labelFormatter={label => `Year ${label}`} />
         <Legend wrapperStyle={{ fontFamily: 'Open Sans, sans-serif', fontSize: '11px', color: '#73786C' }} />
         <Bar dataKey="principal" stackId="a" fill="#9BEC00" name="principal" />
         <Bar dataKey="interest" stackId="a" fill="#CC0066" radius={[4, 4, 0, 0]} name="interest" />
@@ -131,47 +80,18 @@ export function AmortizationChart({
 }
 
 // ── RETIREMENT GAP CHART ────────────────────────────
-export function RetirementGapChart({
-  needed,
-  projected,
-}: {
-  needed: number
-  projected: number
-}) {
-  const data = [
-    { name: 'Corpus Needed', value: needed },
-    { name: 'Your Projection', value: projected },
-  ]
+export function RetirementGapChart({ needed, projected }: { needed: number; projected: number }) {
+  const data = [{ name: 'Corpus Needed', value: needed }, { name: 'Your Projection', value: projected }]
   const colors = ['#73786C', projected >= needed ? '#9BEC00' : '#CC0066']
   return (
     <ResponsiveContainer width="100%" height={160}>
       <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#242620" vertical={false} />
-        <XAxis
-          dataKey="name"
-          tick={{ fontFamily: 'Open Sans, sans-serif', fontSize: 11, fill: '#73786C' }}
-          tickLine={false}
-          axisLine={false}
-        />
-        <YAxis
-          tickFormatter={v =>
-            v >= 10000000 ? `₹${(v / 10000000).toFixed(1)}Cr` :
-            v >= 100000 ? `₹${(v / 100000).toFixed(0)}L` :
-            `₹${(v / 1000).toFixed(0)}K`
-          }
-          tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }}
-          tickLine={false}
-          axisLine={false}
-          width={65}
-        />
-        <Tooltip
-          contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontFamily: 'Open Sans, sans-serif', fontSize: '12px' }}
-          formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, '']}
-        />
+        <XAxis dataKey="name" tick={{ fontFamily: 'Open Sans, sans-serif', fontSize: 11, fill: '#73786C' }} tickLine={false} axisLine={false} />
+        <YAxis tickFormatter={v => v >= 10000000 ? `₹${(v/10000000).toFixed(1)}Cr` : v >= 100000 ? `₹${(v/100000).toFixed(0)}L` : `₹${(v/1000).toFixed(0)}K`} tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={65} />
+        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontFamily: 'Open Sans, sans-serif', fontSize: '12px' }} formatter={(value: unknown) => [`₹${Number(value).toLocaleString('en-IN')}`, '']} />
         <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-          {data.map((_, i) => (
-            <rect key={i} fill={colors[i]} />
-          ))}
+          {data.map((_, i) => <rect key={i} fill={colors[i]} />)}
         </Bar>
       </BarChart>
     </ResponsiveContainer>
@@ -179,11 +99,7 @@ export function RetirementGapChart({
 }
 
 // ── INFLATION LINE CHART ────────────────────────────
-export function InflationChart({
-  data,
-}: {
-  data: { year: number; nominal: number; real: number }[]
-}) {
+export function InflationChart({ data }: { data: { year: number; nominal: number; real: number }[] }) {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -198,28 +114,9 @@ export function InflationChart({
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="#242620" />
-        <XAxis
-          dataKey="year"
-          tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }}
-          tickLine={false}
-          axisLine={{ stroke: '#242620' }}
-        />
-        <YAxis
-          tickFormatter={v =>
-            v >= 10000000 ? `₹${(v / 10000000).toFixed(1)}Cr` :
-            v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` :
-            `₹${(v / 1000).toFixed(0)}K`
-          }
-          tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }}
-          tickLine={false}
-          axisLine={false}
-          width={65}
-        />
-        <Tooltip
-          contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontFamily: 'Open Sans, sans-serif', fontSize: '12px' }}
-          formatter={(value: number, name: string) => [`₹${value.toLocaleString('en-IN')}`, name === 'nominal' ? 'Future Price' : 'Real Value Today']}
-          labelFormatter={label => `Year ${label}`}
-        />
+        <XAxis dataKey="year" tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={{ stroke: '#242620' }} />
+        <YAxis tickFormatter={v => v >= 10000000 ? `₹${(v/10000000).toFixed(1)}Cr` : v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : `₹${(v/1000).toFixed(0)}K`} tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={65} />
+        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontFamily: 'Open Sans, sans-serif', fontSize: '12px' }} formatter={(value: unknown, name?: string | number) => [`₹${Number(value).toLocaleString('en-IN')}`, name === 'nominal' ? 'Future Price' : 'Real Value Today']} labelFormatter={label => `Year ${label}`} />
         <Area type="monotone" dataKey="nominal" stroke="#73786C" strokeWidth={2} fill="url(#colorNominal)" />
         <Area type="monotone" dataKey="real" stroke="#CC0066" strokeWidth={2} fill="url(#colorReal)" />
       </AreaChart>
@@ -229,20 +126,14 @@ export function InflationChart({
 
 // ── RISK METER ──────────────────────────────────────
 export function RiskMeter({ riskPercent }: { riskPercent: number }) {
-  const max = 10
-  const pct = Math.min(riskPercent / max, 1)
+  const pct = Math.min(riskPercent / 10, 1)
   const color = riskPercent <= 2 ? '#9BEC00' : riskPercent <= 5 ? '#FDE900' : '#CC0066'
   const label = riskPercent <= 2 ? 'Safe' : riskPercent <= 5 ? 'Moderate' : 'High Risk'
-
   return (
     <div style={{ padding: '8px 0' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-        <span style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '12px', color: '#73786C' }}>
-          Risk Level
-        </span>
-        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', color, fontWeight: 700 }}>
-          {label} ({riskPercent}%)
-        </span>
+        <span style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '12px', color: '#73786C' }}>Risk Level</span>
+        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', color, fontWeight: 700 }}>{label} ({riskPercent}%)</span>
       </div>
       <div style={{ width: '100%', height: '10px', backgroundColor: '#242620', borderRadius: '999px', overflow: 'hidden' }}>
         <div style={{ width: `${pct * 100}%`, height: '100%', backgroundColor: color, borderRadius: '999px', transition: 'width 0.3s ease' }} />
@@ -254,16 +145,9 @@ export function RiskMeter({ riskPercent }: { riskPercent: number }) {
     </div>
   )
 }
+
 // ── P&L BREAKDOWN CHART ─────────────────────────────
-export function PnLChart({
-  grossPnl,
-  charges,
-  netPnl,
-}: {
-  grossPnl: number
-  charges: number
-  netPnl: number
-}) {
+export function PnLChart({ grossPnl, charges, netPnl }: { grossPnl: number; charges: number; netPnl: number }) {
   const data = [
     { name: 'Gross P&L', value: Math.abs(grossPnl), fill: grossPnl >= 0 ? '#9BEC00' : '#CC0066' },
     { name: 'Charges', value: charges, fill: '#FDE900' },
@@ -274,8 +158,8 @@ export function PnLChart({
       <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#242620" vertical={false} />
         <XAxis dataKey="name" tick={{ fontFamily: 'Open Sans, sans-serif', fontSize: 11, fill: '#73786C' }} tickLine={false} axisLine={false} />
-        <YAxis tickFormatter={v => `₹${Math.abs(v).toLocaleString('en-IN')}`} tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={70} />
-        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, '']} />
+        <YAxis tickFormatter={v => `₹${Math.abs(Number(v)).toLocaleString('en-IN')}`} tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={70} />
+        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: unknown) => [`₹${Number(value).toLocaleString('en-IN')}`, '']} />
         <Bar dataKey="value" radius={[6, 6, 0, 0]}>
           {data.map((entry, i) => <rect key={i} fill={entry.fill} />)}
         </Bar>
@@ -285,13 +169,7 @@ export function PnLChart({
 }
 
 // ── ROI COMPARISON CHART ────────────────────────────
-export function ROIChart({
-  invested,
-  returned,
-}: {
-  invested: number
-  returned: number
-}) {
+export function ROIChart({ invested, returned }: { invested: number; returned: number }) {
   const data = [
     { name: 'Invested', value: invested, fill: '#73786C' },
     { name: 'Final Value', value: returned, fill: returned >= invested ? '#9BEC00' : '#CC0066' },
@@ -301,8 +179,8 @@ export function ROIChart({
       <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#242620" vertical={false} />
         <XAxis dataKey="name" tick={{ fontFamily: 'Open Sans, sans-serif', fontSize: 11, fill: '#73786C' }} tickLine={false} axisLine={false} />
-        <YAxis tickFormatter={v => `₹${v.toLocaleString('en-IN')}`} tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={70} />
-        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, '']} />
+        <YAxis tickFormatter={v => `₹${Number(v).toLocaleString('en-IN')}`} tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={70} />
+        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: unknown) => [`₹${Number(value).toLocaleString('en-IN')}`, '']} />
         <Bar dataKey="value" radius={[6, 6, 0, 0]}>
           {data.map((entry, i) => <rect key={i} fill={entry.fill} />)}
         </Bar>
@@ -312,15 +190,7 @@ export function ROIChart({
 }
 
 // ── LIQUIDATION ZONE CHART ──────────────────────────
-export function LiquidationChart({
-  entry,
-  liquidation,
-  isLong,
-}: {
-  entry: number
-  liquidation: number
-  isLong: boolean
-}) {
+export function LiquidationChart({ entry, liquidation, isLong }: { entry: number; liquidation: number; isLong: boolean }) {
   const distancePct = Math.abs((liquidation - entry) / entry) * 100
   const data = [
     { name: 'Entry Price', value: entry, fill: '#9BEC00' },
@@ -335,19 +205,9 @@ export function LiquidationChart({
         </div>
         <div style={{ flex: 1, margin: '0 16px' }}>
           <div style={{ height: '8px', backgroundColor: '#242620', borderRadius: '999px', position: 'relative', overflow: 'visible' }}>
-            <div style={{
-              position: 'absolute',
-              left: isLong ? 0 : 'auto',
-              right: isLong ? 'auto' : 0,
-              width: `${Math.min(distancePct * 3, 90)}%`,
-              height: '100%',
-              backgroundColor: '#CC006644',
-              borderRadius: '999px',
-            }} />
+            <div style={{ position: 'absolute', left: isLong ? 0 : 'auto', right: isLong ? 'auto' : 0, width: `${Math.min(distancePct * 3, 90)}%`, height: '100%', backgroundColor: '#CC006644', borderRadius: '999px' }} />
           </div>
-          <p style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '10px', color: '#CC0066', textAlign: 'center', marginTop: '6px' }}>
-            {distancePct.toFixed(1)}% away from liquidation
-          </p>
+          <p style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '10px', color: '#CC0066', textAlign: 'center', marginTop: '6px' }}>{distancePct.toFixed(1)}% away from liquidation</p>
         </div>
         <div style={{ textAlign: 'center' }}>
           <p style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '11px', color: '#73786C', marginBottom: '4px' }}>Liquidation</p>
@@ -358,7 +218,7 @@ export function LiquidationChart({
         <BarChart data={data} margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
           <XAxis dataKey="name" tick={{ fontFamily: 'Open Sans, sans-serif', fontSize: 11, fill: '#73786C' }} tickLine={false} axisLine={false} />
           <YAxis tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={70} />
-          <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: number) => [`$${value.toLocaleString('en-IN')}`, '']} />
+          <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: unknown) => [`$${Number(value).toLocaleString('en-IN')}`, '']} />
           <Bar dataKey="value" radius={[6, 6, 0, 0]}>
             {data.map((entry, i) => <rect key={i} fill={data[i].fill} />)}
           </Bar>
@@ -369,12 +229,7 @@ export function LiquidationChart({
 }
 
 // ── PORTFOLIO DONUT CHART ───────────────────────────
-export function PortfolioDonut({
-  equity, debt, gold, crypto, cash,
-}: {
-  equity: number; debt: number; gold: number; crypto: number; cash: number
-}) {
-  const { PieChart, Pie, Cell } = require('recharts')
+export function PortfolioDonut({ equity, debt, gold, crypto, cash }: { equity: number; debt: number; gold: number; crypto: number; cash: number }) {
   const total = equity + debt + gold + crypto + cash
   const data = [
     { name: 'Equity', value: Math.round((equity / total) * 100) },
@@ -389,13 +244,13 @@ export function PortfolioDonut({
       <ResponsiveContainer width={160} height={160}>
         <PieChart>
           <Pie data={data} cx="50%" cy="50%" innerRadius={45} outerRadius={75} dataKey="value" strokeWidth={0}>
-            {data.map((_: unknown, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+            {data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
           </Pie>
-          <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: number) => [`${value}%`, '']} />
+          <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: unknown) => [`${Number(value)}%`, '']} />
         </PieChart>
       </ResponsiveContainer>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {data.map((item: {name: string; value: number}, i: number) => (
+        {data.map((item, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: COLORS[i % COLORS.length], flexShrink: 0 }} />
             <span style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '12px', color: '#A2AB9A' }}>{item.name}</span>
@@ -408,19 +263,10 @@ export function PortfolioDonut({
 }
 
 // ── FD GROWTH CHART ─────────────────────────────────
-export function FDGrowthChart({
-  principal,
-  maturity,
-  years,
-}: {
-  principal: number
-  maturity: number
-  years: number
-}) {
+export function FDGrowthChart({ principal, maturity, years }: { principal: number; maturity: number; years: number }) {
   const data = []
   for (let y = 1; y <= Math.min(years, 10); y++) {
-    const fv = principal * Math.pow(maturity / principal, y / years)
-    data.push({ year: y, value: Math.round(fv) })
+    data.push({ year: y, value: Math.round(principal * Math.pow(maturity / principal, y / years)) })
   }
   return (
     <ResponsiveContainer width="100%" height={180}>
@@ -433,8 +279,8 @@ export function FDGrowthChart({
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="#242620" />
         <XAxis dataKey="year" tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={{ stroke: '#242620' }} />
-        <YAxis tickFormatter={v => v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` : `₹${(v / 1000).toFixed(0)}K`} tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={60} />
-        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Value']} labelFormatter={label => `Year ${label}`} />
+        <YAxis tickFormatter={v => v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : `₹${(v/1000).toFixed(0)}K`} tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={60} />
+        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: unknown) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Value']} labelFormatter={label => `Year ${label}`} />
         <Area type="monotone" dataKey="value" stroke="#2F8EFF" strokeWidth={2} fill="url(#colorFD)" />
       </AreaChart>
     </ResponsiveContainer>
@@ -442,25 +288,15 @@ export function FDGrowthChart({
 }
 
 // ── MARGIN UTILIZATION BAR ──────────────────────────
-export function MarginBar({
-  marginRequired,
-  accountSize,
-}: {
-  marginRequired: number
-  accountSize: number
-}) {
+export function MarginBar({ marginRequired, accountSize }: { marginRequired: number; accountSize: number }) {
   const pct = Math.min((marginRequired / accountSize) * 100, 100)
   const color = pct < 50 ? '#9BEC00' : pct < 75 ? '#FDE900' : '#CC0066'
   const label = pct < 50 ? 'Safe' : pct < 75 ? 'Moderate' : 'High Utilization'
   return (
     <div style={{ padding: '8px 0' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-        <span style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '12px', color: '#73786C' }}>
-          Margin Utilization
-        </span>
-        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', color, fontWeight: 700 }}>
-          {label} ({pct.toFixed(1)}%)
-        </span>
+        <span style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '12px', color: '#73786C' }}>Margin Utilization</span>
+        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '13px', color, fontWeight: 700 }}>{label} ({pct.toFixed(1)}%)</span>
       </div>
       <div style={{ width: '100%', height: '10px', backgroundColor: '#242620', borderRadius: '999px', overflow: 'hidden' }}>
         <div style={{ width: `${pct}%`, height: '100%', backgroundColor: color, borderRadius: '999px', transition: 'width 0.3s ease' }} />
@@ -474,23 +310,9 @@ export function MarginBar({
 }
 
 // ── CAGR GROWTH CHART ───────────────────────────────
-export function CAGRChart({
-  initialValue,
-  finalValue,
-  years,
-}: {
-  initialValue: number
-  finalValue: number
-  years: number
-}) {
+export function CAGRChart({ initialValue, finalValue, years }: { initialValue: number; finalValue: number; years: number }) {
   const cagr = Math.pow(finalValue / initialValue, 1 / years) - 1
-  const data = []
-  for (let y = 0; y <= years; y++) {
-    data.push({
-      year: y,
-      value: Math.round(initialValue * Math.pow(1 + cagr, y)),
-    })
-  }
+  const data = Array.from({ length: years + 1 }, (_, y) => ({ year: y, value: Math.round(initialValue * Math.pow(1 + cagr, y)) }))
   return (
     <ResponsiveContainer width="100%" height={200}>
       <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -501,68 +323,24 @@ export function CAGRChart({
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="#242620" />
-        <XAxis
-          dataKey="year"
-          tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }}
-          tickLine={false}
-          axisLine={{ stroke: '#242620' }}
-          label={{ value: 'Years', position: 'insideBottom', offset: -2, fill: '#73786C', fontSize: 11 }}
-        />
-        <YAxis
-          tickFormatter={v =>
-            v >= 10000000 ? `₹${(v / 10000000).toFixed(1)}Cr` :
-            v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` :
-            `₹${(v / 1000).toFixed(0)}K`
-          }
-          tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }}
-          tickLine={false}
-          axisLine={false}
-          width={60}
-        />
-        <Tooltip
-          contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }}
-          formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Value']}
-          labelFormatter={label => `Year ${label}`}
-        />
-        <Area
-          type="monotone"
-          dataKey="value"
-          stroke="#9BEC00"
-          strokeWidth={2}
-          fill="url(#colorCAGR)"
-        />
+        <XAxis dataKey="year" tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={{ stroke: '#242620' }} label={{ value: 'Years', position: 'insideBottom', offset: -2, fill: '#73786C', fontSize: 11 }} />
+        <YAxis tickFormatter={v => v >= 10000000 ? `₹${(v/10000000).toFixed(1)}Cr` : v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : `₹${(v/1000).toFixed(0)}K`} tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={60} />
+        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: unknown) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Value']} labelFormatter={label => `Year ${label}`} />
+        <Area type="monotone" dataKey="value" stroke="#9BEC00" strokeWidth={2} fill="url(#colorCAGR)" />
       </AreaChart>
     </ResponsiveContainer>
   )
 }
+
 // ── SAVINGS GOAL PROGRESS CHART ─────────────────────
-export function SavingsGoalChart({
-  goalAmount,
-  currentSavings,
-  monthlySavings,
-  years,
-  annualReturn,
-}: {
-  goalAmount: number
-  currentSavings: number
-  monthlySavings: number
-  years: number
-  annualReturn: number
-}) {
-  const data = []
+export function SavingsGoalChart({ goalAmount, currentSavings, monthlySavings, years, annualReturn }: { goalAmount: number; currentSavings: number; monthlySavings: number; years: number; annualReturn: number }) {
   const monthlyRate = annualReturn / 12 / 100
-  for (let y = 0; y <= years; y++) {
+  const data = Array.from({ length: years + 1 }, (_, y) => {
     const fvCurrent = currentSavings * Math.pow(1 + annualReturn / 100, y)
     const months = y * 12
-    const fvMonthly = monthlySavings > 0
-      ? monthlySavings * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate)
-      : 0
-    data.push({
-      year: y,
-      savings: Math.round(fvCurrent + fvMonthly),
-      goal: Math.round(goalAmount),
-    })
-  }
+    const fvMonthly = monthlySavings > 0 ? monthlySavings * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) : 0
+    return { year: y, savings: Math.round(fvCurrent + fvMonthly), goal: Math.round(goalAmount) }
+  })
   return (
     <ResponsiveContainer width="100%" height={220}>
       <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -574,16 +352,8 @@ export function SavingsGoalChart({
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="#242620" />
         <XAxis dataKey="year" tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={{ stroke: '#242620' }} />
-        <YAxis
-          tickFormatter={v => v >= 10000000 ? `₹${(v / 10000000).toFixed(1)}Cr` : v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` : `₹${(v / 1000).toFixed(0)}K`}
-          tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }}
-          tickLine={false} axisLine={false} width={65}
-        />
-        <Tooltip
-          contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }}
-          formatter={(value: number, name: string) => [`₹${value.toLocaleString('en-IN')}`, name === 'savings' ? 'Your Savings' : 'Goal']}
-          labelFormatter={label => `Year ${label}`}
-        />
+        <YAxis tickFormatter={v => v >= 10000000 ? `₹${(v/10000000).toFixed(1)}Cr` : v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : `₹${(v/1000).toFixed(0)}K`} tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={65} />
+        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: unknown, name?: string | number) => [`₹${Number(value).toLocaleString('en-IN')}`, name === 'savings' ? 'Your Savings' : 'Goal']} labelFormatter={label => `Year ${label}`} />
         <Area type="monotone" dataKey="goal" stroke="#73786C" strokeWidth={1} strokeDasharray="4 4" fill="none" />
         <Area type="monotone" dataKey="savings" stroke="#9BEC00" strokeWidth={2} fill="url(#colorSavings)" />
       </AreaChart>
@@ -592,13 +362,7 @@ export function SavingsGoalChart({
 }
 
 // ── NET WORTH BREAKDOWN ──────────────────────────────
-export function NetWorthChart({
-  assets,
-  liabilities,
-}: {
-  assets: number
-  liabilities: number
-}) {
+export function NetWorthChart({ assets, liabilities }: { assets: number; liabilities: number }) {
   const netWorth = assets - liabilities
   const data = [
     { name: 'Total Assets', value: assets, fill: '#9BEC00' },
@@ -610,15 +374,8 @@ export function NetWorthChart({
       <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#242620" vertical={false} />
         <XAxis dataKey="name" tick={{ fontFamily: 'Open Sans, sans-serif', fontSize: 11, fill: '#73786C' }} tickLine={false} axisLine={false} />
-        <YAxis
-          tickFormatter={v => v >= 10000000 ? `₹${(v / 10000000).toFixed(1)}Cr` : v >= 100000 ? `₹${(v / 100000).toFixed(0)}L` : `₹${(v / 1000).toFixed(0)}K`}
-          tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }}
-          tickLine={false} axisLine={false} width={65}
-        />
-        <Tooltip
-          contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }}
-          formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, '']}
-        />
+        <YAxis tickFormatter={v => v >= 10000000 ? `₹${(v/10000000).toFixed(1)}Cr` : v >= 100000 ? `₹${(v/100000).toFixed(0)}L` : `₹${(v/1000).toFixed(0)}K`} tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={65} />
+        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: unknown) => [`₹${Number(value).toLocaleString('en-IN')}`, '']} />
         <Bar dataKey="value" radius={[6, 6, 0, 0]}>
           {data.map((entry, i) => <rect key={i} fill={entry.fill} />)}
         </Bar>
@@ -626,14 +383,9 @@ export function NetWorthChart({
     </ResponsiveContainer>
   )
 }
+
 // ── DCF VALUATION CHART ──────────────────────────────
-export function DCFChart({
-  intrinsicValue,
-  currentPrice,
-}: {
-  intrinsicValue: number
-  currentPrice: number
-}) {
+export function DCFChart({ intrinsicValue, currentPrice }: { intrinsicValue: number; currentPrice: number }) {
   const data = [
     { name: 'Intrinsic Value', value: intrinsicValue, fill: '#9BEC00' },
     { name: 'Market Price', value: currentPrice, fill: currentPrice <= intrinsicValue ? '#2F8EFF' : '#CC0066' },
@@ -643,8 +395,8 @@ export function DCFChart({
       <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#242620" vertical={false} />
         <XAxis dataKey="name" tick={{ fontFamily: 'Open Sans, sans-serif', fontSize: 11, fill: '#73786C' }} tickLine={false} axisLine={false} />
-        <YAxis tickFormatter={v => `₹${v.toLocaleString('en-IN')}`} tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={70} />
-        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, '']} />
+        <YAxis tickFormatter={v => `₹${Number(v).toLocaleString('en-IN')}`} tick={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, fill: '#73786C' }} tickLine={false} axisLine={false} width={70} />
+        <Tooltip contentStyle={{ backgroundColor: '#181916', border: '1px solid #242620', borderRadius: '8px', fontSize: '12px' }} formatter={(value: unknown) => [`₹${Number(value).toLocaleString('en-IN')}`, '']} />
         <Bar dataKey="value" radius={[6, 6, 0, 0]}>
           {data.map((entry, i) => <rect key={i} fill={entry.fill} />)}
         </Bar>
@@ -660,20 +412,14 @@ export function PiotroskiChart({ score }: { score: number }) {
   return (
     <div style={{ padding: '8px 0' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-        <span style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '13px', color: '#A2AB9A' }}>
-          Financial Health Score
-        </span>
+        <span style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '13px', color: '#A2AB9A' }}>Financial Health Score</span>
         <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '22px', fontWeight: 700, color }}>
           {score} <span style={{ fontSize: '14px', color: '#73786C' }}>/ 9</span>
         </span>
       </div>
       <div style={{ display: 'flex', gap: '6px' }}>
         {Array.from({ length: 9 }, (_, i) => (
-          <div key={i} style={{
-            flex: 1, height: '32px', borderRadius: '4px',
-            backgroundColor: i < score ? color : '#242620',
-            transition: 'background 0.2s',
-          }} />
+          <div key={i} style={{ flex: 1, height: '32px', borderRadius: '4px', backgroundColor: i < score ? color : '#242620', transition: 'background 0.2s' }} />
         ))}
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>

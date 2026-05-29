@@ -8,7 +8,7 @@ import {
   RetirementGapChart, InflationChart, RiskMeter,
   PnLChart, ROIChart, LiquidationChart,
   PortfolioDonut, FDGrowthChart, MarginBar,
-  CAGRChart, SavingsGoalChart, NetWorthChart,
+ SavingsGoalChart, NetWorthChart,
   DCFChart, PiotroskiChart,
 } from './CalculatorChart'
 
@@ -101,19 +101,19 @@ export default function CalculatorShell({ slug }: { slug: string }) {
   const defaultInputs = useMemo(() => {
     if (!config) return {}
     return Object.fromEntries(config.inputs.map(i => [i.id, i.default]))
-  }, [slug])
+  },[config])
 
   const [inputs, setInputs] = useState<Record<string, number>>(defaultInputs)
 
   const result = useMemo(() => {
     if (!config) return null
     try { return config.formula(inputs) } catch { return null }
-  }, [inputs, slug])
+  }, [inputs, config])
 
   const insights = useMemo(() => {
     if (!config || !result) return []
     try { return config.insights(result, inputs) } catch { return [] }
-  }, [result, slug])
+  }, [result, config,inputs])
 
   const insightStyles = {
     green: { bg: 'rgba(155,236,0,0.08)', border: 'rgba(155,236,0,0.3)', color: '#9BEC00', icon: '✓' },
@@ -343,7 +343,7 @@ const showPiotroskiChart  = slug === 'piotroski'
               Purchasing Power Over Time
             </h2>
             <p style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '12px', color: '#73786C', marginBottom: '20px' }}>
-              Grey = future price · Red = real value in today's money
+              Grey = future price · Red = real value in today money
             </p>
             <InflationChart data={generateInflationData(inputs)} />
           </div>
